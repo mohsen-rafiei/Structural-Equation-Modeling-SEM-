@@ -1,0 +1,105 @@
+
+---
+title: "SEM Data Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This document provides an example of how to analyze a Structural Equation Modeling (SEM) dataset. The dataset contains observed indicators for two latent variables (*Cognitive Load* and *Performance*) and additional observed variables (*Stress*, *Age*, and *Gender*).
+
+---
+
+## Step 1: Load the Data
+
+```{r load-data}
+# Load necessary libraries
+library(tidyverse)
+
+# Load the SEM dataset (assuming it's in the same folder as this Rmd file)
+data <- read.csv("sem_data.csv")
+
+# Quick look at the data
+head(data)
+summary(data)
+```
+
+---
+
+## Step 2: Explore and Visualize the Data
+
+```{r explore-data}
+# Scatterplot of Cognitive Load indicators
+ggplot(data, aes(x = Cognitive_Load_1, y = Cognitive_Load_2)) +
+  geom_point(color = "blue") +
+  labs(title = "Cognitive Load Indicators", x = "Cognitive_Load_1", y = "Cognitive_Load_2")
+
+# Scatterplot of Performance indicators
+ggplot(data, aes(x = Performance_1, y = Performance_2)) +
+  geom_point(color = "green") +
+  labs(title = "Performance Indicators", x = "Performance_1", y = "Performance_2")
+
+# Boxplot of Stress by Gender
+ggplot(data, aes(x = Gender, y = Stress)) +
+  geom_boxplot(fill = "orange", color = "black") +
+  labs(title = "Stress Levels by Gender", x = "Gender", y = "Stress")
+```
+
+---
+
+## Step 3: Prepare Data for SEM
+
+```{r prepare-data}
+# Select only the observed indicators for SEM
+sem_data <- data %>%
+  select(Cognitive_Load_1, Cognitive_Load_2, Cognitive_Load_3, Performance_1, Performance_2, Performance_3)
+
+# Check the structure of the SEM data
+summary(sem_data)
+```
+
+---
+
+## Step 4: Perform SEM Analysis
+
+```{r sem-analysis, message=FALSE, warning=FALSE}
+# Load SEM library
+library(lavaan)
+
+# Define the SEM model
+sem_model <- '
+  # Latent variables
+  Cognitive_Load =~ Cognitive_Load_1 + Cognitive_Load_2 + Cognitive_Load_3
+  Performance =~ Performance_1 + Performance_2 + Performance_3
+'
+
+# Fit the SEM model
+sem_fit <- sem(sem_model, data = sem_data)
+
+# Summary of the SEM model
+summary(sem_fit, fit.measures = TRUE, standardized = TRUE)
+```
+
+---
+
+## Step 5: Interpret Results
+
+```{r interpret-results}
+# Display fit measures
+fit_measures <- fitMeasures(sem_fit)
+print(fit_measures)
+
+# Extract standardized estimates
+std_estimates <- standardizedSolution(sem_fit)
+print(std_estimates)
+```
+
+---
+
+## Conclusion
+
+This document provides a basic example of SEM analysis using R. You can expand it by adding more latent variables, testing alternative models, or visualizing the results. Feel free to adapt this workflow to your own research!
